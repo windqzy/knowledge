@@ -10,16 +10,16 @@ TypedDict return {}
 """
 class ImportGraphState(TypedDict):
     task_id:str #标记任务的唯一标识
-    local_file_path: str #标记书收入的原文件地址(不确定类型)
-    md_path: str #明确的md地址/后续处理完图片地址
-    pdf_path:str #明确的pdf地址
+    local_file_path: str|None #标记书收入的原文件地址(不确定类型)
+    md_path: str|None #明确的md地址/后续处理完图片地址
+    pdf_path:str|None #明确的pdf地址
 
     file_title:str #文件名 xx.md
     local_dir:str #输出文件的文件夹地址
 
     md_content:str #md的内容
 
-    is_md_red_enabled: bool #是否是md文件
+    is_md_read_enabled: bool #是否是md文件
     is_pdf_read_enabled: bool #是否是pdf文件
 
     chunk:list[dict]  #切块的内容(还没有向量)

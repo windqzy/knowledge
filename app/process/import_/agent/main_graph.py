@@ -33,7 +33,7 @@ def after_node_entry(state: ImportGraphState):
         logger.info(f'传入的文件地址为：{state.get('local_file_path')},文件类型为md，跳转到node_md_img节点')
         return "node_md_img"
     else:
-        logger.info(
+        logger.warning(
             f'传入的文件地址为：{state.get('local_file_path')},文件类型既不是md，又不是pdf，无法解析，直接跳转到END节点')
         return END
 # 条件边 如果pdf node_pdf_to_md 如果md node_md_img 如果都不是 提前end
