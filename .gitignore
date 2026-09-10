@@ -165,4 +165,5 @@ doc/
 test/
 logs/
 output/
+images/
 .env
