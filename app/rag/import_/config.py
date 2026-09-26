@@ -18,3 +18,12 @@ SUPPORTED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"}
 
 #定义截取上下文的长度
 SUB_MD_CONTENT_CONTEXT_LENGTH = 100
+
+# 文本切块最大长度：单个文本块最多包含 1000 字符（防止过长导致向量失真）
+CHUNK_MAX_SIZE = 1000
+# 文本切块基准长度：单个文本块理想大小为 600 字符（兼顾语义完整性 + 检索精度）
+CHUNK_SIZE = 600
+# 文本块重叠长度：相邻块之间重叠 20 字符，保证语义不被切断、上下文连贯
+CHUNK_OVERLAP = 50
+# 最小碎片阈值：低于这个长度判定为短碎片，需要尝试合并
+CHUNK_MIN = 400
