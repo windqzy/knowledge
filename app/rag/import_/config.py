@@ -13,3 +13,8 @@ MINERU_DOWNLOAD_TIMEOUT_SECONDS = 30
 
 #输出文件地址output
 PARSE_PDF_OUTPUT_DIR = 'output'
+
+SUPPORTED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"}
+
+#定义截取上下文的长度
+SUB_MD_CONTENT_CONTEXT_LENGTH = 100

@@ -21,7 +21,8 @@ class MinIOGateway:
         """获取 MinIO 中存放图片的目录路径（从全局配置读取）"""
         return infra_config.minio.minio_img_dir
 
-    def client(self) -> Minio:
+    @property
+    def minio_client(self) -> Minio:
         """获取 MinIO 客户端实例，用于上传、下载、查询文件等操作"""
         return get_minio_client()
 

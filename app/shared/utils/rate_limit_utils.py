@@ -39,3 +39,53 @@ def apply_api_rate_limit(
     # 3. 记录当前请求时间戳，加入滑动窗口队列
     _GLOBAL_REQUEST_TIMES.append(current_time)
     logger.debug(f"API请求时间戳已记录，当前{window_seconds}秒窗口内请求数：{len(_GLOBAL_REQUEST_TIMES)}")
+
+
+"""
+调用API之前
+
+      |
+      v
+
+查看过去60秒请求记录
+
+      |
+      v
+
+删除超过60秒的旧记录
+
+      |
+      v
+
+还有500次额度吗？
+
+      |
+      +------------+
+      |            |
+     有            没有
+      |            |
+      v            v
+
+记录时间      计算等待时间
+
+                 |
+                 v
+
+               sleep
+
+                 |
+                 v
+
+              清理旧请求
+
+
+      |
+      v
+
+记录本次请求
+
+      |
+      v
+
+真正调用API
+"""

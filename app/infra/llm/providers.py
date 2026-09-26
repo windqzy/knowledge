@@ -20,13 +20,21 @@ class LLMProvider:
         """
         return get_llm_client(model=model, json_mode=json_mode)
 
-    def vision_chat(self) -> ChatOpenAI:
-        """
-        获取【视觉对话】LLM 客户端（用于图片理解、图片摘要、多模态理解）
-        默认使用配置中的 lv_model（视觉大模型）
-        :return: 视觉模型客户端
-        """
-        return get_llm_client(model=infra_config.llm.lv_model)
+    # def vision_model(self,model_name:str ) -> ChatOpenAI:
+    #     """
+    #     获取【视觉对话】LLM 客户端（用于图片理解、图片摘要、多模态理解）
+    #     默认使用配置中的 lv_model（视觉大模型）
+    #     :return: 视觉模型客户端
+    #     """
+    #     return get_llm_client(model=infra_config.llm.lv_model)
+
+    def vision_model(self, model_name: str) -> ChatOpenAI:
+        return ChatOpenAI(
+            model=model_name,
+            base_url="http://localhost:11434/v1",
+            api_key="ollama",
+            temperature=0.1,
+        )
 
 
 # 创建全局唯一的 LLM 提供器实例，全项目通用，避免重复创建

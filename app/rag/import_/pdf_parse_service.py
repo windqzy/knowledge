@@ -4,8 +4,6 @@ from pathlib import Path
 import requests
 import shutil
 
-from scipy.signal import step
-
 from app.process.import_.agent.state import ImportGraphState
 from app.rag.import_.config import PARSE_PDF_OUTPUT_DIR, MINERU_MODEL_VERSION, MINERU_DOWNLOAD_TIMEOUT_SECONDS, \
     MINERU_POLL_INTERVAL_SECONDS, MINERU_POLL_TIMEOUT_SECONDS
@@ -45,11 +43,35 @@ def upload_pdf_and_poll(pdf_path_obj: Path) -> ImportGraphState:
     url = f'{infra_config.mineru.base_url}/file-urls/batch'
     headers = {'Content-Type': 'application/json',
                'Authorization': f'Bearer {token}'}
+    # data = {
+    #     'files': [
+    #         {'name': f'{pdf_path_obj.name}'}
+    #     ],
+    #     'model_version': MINERU_MODEL_VERSION
+    # }
+
     data = {
-        'files': [
-            {'name': f'{pdf_path_obj.name}'}
+        "files": [
+            {
+                "name": pdf_path_obj.name,
+
+                # 你的 PDF 视觉上正常，但 MD 出现乱码，
+                # 建议先强制 OCR，让 MinerU 按页面视觉内容重新识别文字
+                "is_ocr": True,
+            }
         ],
-        'model_version': MINERU_MODEL_VERSION
+
+        # 用 VLM 解析复杂排版
+        "model_version": "vlm",
+
+        # 中文文档
+        "language": "ch",
+
+        # 说明书里有表格，保留
+        "enable_table": True,
+
+        # 你的安全手册几乎没公式，可以关闭，减少干扰
+        "enable_formula": False,
     }
     response = requests.post(url, headers=headers, json=data, timeout=MINERU_DOWNLOAD_TIMEOUT_SECONDS)
     status_code = response.status_code
