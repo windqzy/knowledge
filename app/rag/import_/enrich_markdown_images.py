@@ -20,6 +20,7 @@ from mimetypes import guess_type
 from app.shared.utils.rate_limit_utils import apply_api_rate_limit
 from app.infra.object_storage.minio_gateway import minio_gateway
 
+
 @step_log("validate_data_and_paths")
 def validate_data_and_paths(state: ImportGraphState) -> tuple[str, str, Path]:
     # 1.1 获取请求参数md_path
@@ -41,6 +42,7 @@ def validate_data_and_paths(state: ImportGraphState) -> tuple[str, str, Path]:
     images_dir_obj: Path = md_path_obj.parent / 'images'
     # 1.7 返回三个核心参数
     return md_content, md_path_obj, images_dir_obj
+
 
 @step_log("extract_image_context_info")
 def extract_image_context_info(images_dir_obj: Path, md_content) -> list[tuple[str, Path, tuple[str, str]]]:
@@ -100,6 +102,7 @@ def extract_image_context_info(images_dir_obj: Path, md_content) -> list[tuple[s
     logger.info(
         f'图片上下文识别结束，识别到图片的数量：{len(image_context_list)},参考示例：{'images文件夹都是非图片文件！' if len(image_context_list) == 0 else '参考示例：' + str(image_context_list[0])}')
     return image_context_list
+
 
 @step_log("call_vision_summary_images")
 def call_vision_summary_images(images_context_list: list[tuple[str, Path, tuple[str, str]]], file_name: str) -> dict[
@@ -208,7 +211,7 @@ def replace_old_md_content(md_content: str, images_summaries: dict[str, str], im
         # 6.4正则 ![](./image_name)-->替换成![语义](图片的网络地址)
         # md_content = image_re.sub(f'![{images_summary}]({image_url})', md_content)
         # 避免特殊符号处理 报错。用lambda可以跳过特殊处理
-        md_content = image_re.sub(lambda _ : f'![{images_summary}]({image_url})', md_content)
+        md_content = image_re.sub(lambda _: f'![{images_summary}]({image_url})', md_content)
         """
         ![](images/c61a7.jpg)替换为
         ![禁止使用剪刀剪断电源线](http://minio.xxx/images/hak180/c61a7.jpg)
@@ -228,6 +231,7 @@ def backup_new_md_content(new_md_content: str, md_path_obj: Path) -> Path:
     new_md_path_obj.write_text(new_md_content, encoding='utf-8')
     # 7.3返回新的地址
     return new_md_path_obj
+
 
 @step_log("enrich_markdown_images")
 def enrich_markdown_images(state: ImportGraphState) -> ImportGraphState:
@@ -264,11 +268,12 @@ def enrich_markdown_images(state: ImportGraphState) -> ImportGraphState:
     # 7.对新的md_content进行备份(md_content,md_path_obj) ->new_md_content地址
     new_md_path_obj = backup_new_md_content(new_md_content, md_path_obj)
     # 8.更新state
-    #8.1 更新state md_content md_path_obj
+    # 8.1 更新state md_content md_path_obj
     state['md_content'] = new_md_content
-    state['md_path_obj'] = new_md_path_obj
-    #8.2返回state
+    state['md_path'] = new_md_path_obj
+    # 8.2返回state
     return state
+
 
 """
 Markdown
