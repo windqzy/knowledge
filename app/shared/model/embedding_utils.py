@@ -118,3 +118,93 @@ def generate_embeddings(texts: list[str]) -> dict[str, list]:
         raise  # 不吞异常，向上传递让调用方做重试/降级处理
 
 
+"""
+texts
+["HAK 180 烫金机", "请勿用湿手触摸插头"]
+        ↓
+get_bge_m3_ef()
+加载 BGE-M3（只加载一次）
+        ↓
+model.encode_documents(texts)
+        ↓
+┌────────────────────┬────────────────────┐
+│ dense              │ sparse             │
+│ numpy 数组          │ CSR 稀疏矩阵        │
+└────────────────────┴────────────────────┘
+        ↓                       ↓
+tolist()                 CSR → dict
+        ↓                       ↓
+list[list[float]]        list[dict[int,float]]
+        └──────────┬────────────┘
+                   ↓
+{
+  "dense": [...],
+  "sparse": [...]
+}
+
+第一层
+get_bge_m3_ef()
+
+解决：
+模型只加载一次
+
+
+第二层
+model.encode_documents(texts)
+
+解决：
+文字 → Dense + Sparse
+
+
+第三层
+CSR → dict
+
+解决：
+模型返回的 Sparse 不方便业务直接使用
+把它转换成：
+{特征ID: 权重}
+
+
+第四层
+NumPy → Python list/dict
+
+解决：
+方便后面：
+Milvus / JSON / state / 网络传输
+
+
+文本1
+  ↓
+dense_vector = [1024个数字]
+sparse_vector = {特征位置: 权重}
+
+文本2
+  ↓
+dense_vector = [1024个数字]
+sparse_vector = {特征位置: 权重}
+
+文本
+ ↓
+BGE-M3
+ ↓
+dense_vector
+ ↓
+L2归一化
+ ↓
+长度统一为1
+ ↓
+存入 Milvus
+ ↓
+Milvus 用 IP 比较
+ ↓
+此时 IP = Cosine 相似度
+
+L2归一化：统一长度
+
+Cosine：比较方向
+
+IP：计算内积
+
+L2归一化之后：
+IP = Cosine
+"""

@@ -11,14 +11,29 @@ class LLMProvider:
     外部业务只需要调用 llm_provider 就能获取各种模型，不用关心底层配置
     """
 
-    def chat(self, model: str | None = None, json_mode: bool = False) -> ChatOpenAI:
-        """
-        获取【普通文本对话】LLM 客户端
-        :param model: 可选，指定模型名称，不填则使用默认配置
-        :param json_mode: 是否开启 JSON 格式输出模式
-        :return: 可直接调用的 LangChain LLM 客户端
-        """
-        return get_llm_client(model=model, json_mode=json_mode)
+    # def chat(self, model: str | None = None, json_mode: bool = False) -> ChatOpenAI:
+    #     """
+    #     获取【普通文本对话】LLM 客户端
+    #     :param model: 可选，指定模型名称，不填则使用默认配置
+    #     :param json_mode: 是否开启 JSON 格式输出模式
+    #     :return: 可直接调用的 LangChain LLM 客户端
+    #     """
+    #     return get_llm_client(model=model, json_mode=json_mode)
+
+    def chat(
+            self,
+            model: str | None = None,
+            json_mode: bool = False
+    ) -> ChatOpenAI:
+        # 不传模型时，默认使用本地模型
+        model_name = model or "qwen3:8b"
+
+        return ChatOpenAI(
+            model='qwen3:8b',
+            base_url="http://localhost:11434/v1",
+            api_key="ollama",  # Ollama其实不验证，随便填
+            temperature=0.1,
+        )
 
     # def vision_model(self,model_name:str ) -> ChatOpenAI:
     #     """
@@ -35,6 +50,10 @@ class LLMProvider:
             api_key="ollama",
             temperature=0.1,
         )
+
+    #3.嵌入式模型生成向量的函数
+    def generate_embeddings(self,texts:list[str]) -> dict[str, list]:
+        return generate_embeddings(texts)
 
 
 # 创建全局唯一的 LLM 提供器实例，全项目通用，避免重复创建
