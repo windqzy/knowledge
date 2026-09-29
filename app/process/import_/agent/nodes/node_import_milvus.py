@@ -1,3 +1,4 @@
+from app.process.import_.agent.nodes.node_bge_embedding import node_bge_embedding
 from app.shared.runtime.logger import node_log
 from app.shared.utils.task_utils import add_done_task, add_running_task
 from app.process.import_.agent.state import ImportGraphState
