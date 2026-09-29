@@ -27,3 +27,5 @@ CHUNK_SIZE = 600
 CHUNK_OVERLAP = 50
 # 最小碎片阈值：低于这个长度判定为短碎片，需要尝试合并
 CHUNK_MIN = 400
+
+CHUNS_SPLIT_BATCH_SISE = 5
