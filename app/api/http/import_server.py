@@ -1,4 +1,5 @@
 import json
+import shutil
 import uuid
 from mimetypes import guess_type
 from pathlib import Path
@@ -73,8 +74,10 @@ async def upload_files(task: BackgroundTasks, files: list[UploadFile]):
     local_dir_obj: Path = PROJECT_ROOT / 'output' / datetime.now().strftime("%Y%m%d") / task_id
     local_dir_obj.mkdir(parents=True, exist_ok=True)
     local_file_path_obj: Path = local_dir_obj / uploaded_file.filename
-    data = await uploaded_file.read()
-    local_file_path_obj.write_bytes(data=data)
+    # data = await uploaded_file.read()
+    # local_file_path_obj.write_bytes(data=data)
+    with open(local_file_path_obj, "wb") as f:
+        shutil.copyfileobj(uploaded_file.file, f)
     # 3.异步调用图的执行流程
     task.add_task(
         invoke_import_graph,
