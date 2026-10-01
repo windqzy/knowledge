@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <span>展示内容:</span>
+    <div id="xdd"></div>
+    <!-- -->
+    <script>
+        //创建sse对象,关联后端的接口
+        const eventSource = new EventSource("http://127.0.0.1:7777/stream");
+
+        const xdd = document.getElementById("xdd");
+
+        //绑定一个事件 onmessage = python接口回调 = 后端返回了数据 = 调用函数
+        eventSource.onmessage = function(xx){
+            //event 就是包含后端事件类型和数据的综合对象
+            //取后端返回的数据 event.data
+            console.log(xx.data)
+            xdd.innerHTML = xdd.innerHTML +'<br>'+ xx.data
+            //xdd.innerHTML = "xx"
+        }
+    </script>
+</body>
+</html>

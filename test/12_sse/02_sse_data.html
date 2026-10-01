@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<br> <br><br><br><br>
+&nbsp;&nbsp;&nbsp;<span>下载:</span> <span id="process">1</span>% <span id="status"></span>
+    <!-- -->
+    <script>
+        //创建sse对象,关联后端的接口
+        const eventSource = new EventSource("http://127.0.0.1:8888/stream");
+
+        span_process = document.getElementById("process")
+
+        // 显示进度  数字
+        // processing事件会调用前端函数
+        // yield event: x\n
+        eventSource.addEventListener("processing",(event)=>{
+            data = event.data // 获取数据
+            span_process.innerText = data
+        })
+        span_status = document.getElementById("status");
+        // 下载完成
+        eventSource.addEventListener("completed",(event)=>{
+            data = event.data // 获取数据
+            span_status.innerHTML = data
+            eventSource.close()
+        })
+    </script>
+</body>
+</html>
