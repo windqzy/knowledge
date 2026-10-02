@@ -5,13 +5,11 @@ from typing import Any
 import uvicorn
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.responses import FileResponse, StreamingResponse
-from pathlib import Path
 
 from app.api.schemas.query_shema import QueryRequestSchema, SyncQueryResponseSchema, AsyncQueryResponseSchema
 from app.process.query.agent.main_graph import query_graph_app
 from app.process.query.agent.state import QueryGraphState, create_query_default_state
 from app.shared.runtime.logger import logger, PROJECT_ROOT
-from app.shared.utils import task_utils
 from app.shared.utils.sse_utils import sse_generator, get_sse_queue, create_sse_queue
 from datetime import datetime
 from fastapi.requests import Request
