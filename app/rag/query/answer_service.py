@@ -17,7 +17,7 @@ def generate_answer(state: QueryGraphState) -> QueryGraphState:
     """
     ""
     print("---node_answer_output 节点处理开始---")
-    add_running_task(state["session_id"], sys._getframe().f_code.co_name, state.get("is_stream"))
+    # add_running_task(state["session_id"], sys._getframe().f_code.co_name, state.get("is_stream"))
 
     session_id = state["session_id"]
     is_stream = state.get("is_stream", True)
@@ -29,27 +29,20 @@ def generate_answer(state: QueryGraphState) -> QueryGraphState:
             final_text += ch
             push_to_session(session_id, SSEEvent.DELTA, {"delta": ch})
             time.sleep(0.03)
-
-        image_urls = ["http://localhost:19000/knowledge-files/upload-images/hak180使用说明书/05974e15ae8e04f06c8665edafb8075e1bb9a231ffa37af8f3b19802f807cd87.jpg",
-                      "http://localhost:19000/knowledge-files/upload-images/hak180使用说明书/24a80e4f0025cd2f1b913285a20cb770f769e3418cb9388049d53dd18f24e38c.jpg"]
-        push_to_session(
-            session_id,
-            SSEEvent.FINAL,
-            {
-                "answer": final_text,
-                "status": "completed",
-                "image_urls": image_urls
-            }
-        )
         logger.info(f"流式输出完成，总长度: {len(final_text)}")
     else:
         final_text = base_answer
 
-    add_done_task(state['session_id'], sys._getframe().f_code.co_name, state.get("is_stream"))
+    # add_done_task(state['session_id'], sys._getframe().f_code.co_name, state.get("is_stream"))
+    image_urls = [
+        "http://localhost:19000/knowledge-files/upload-images/hak180使用说明书/05974e15ae8e04f06c8665edafb8075e1bb9a231ffa37af8f3b19802f807cd87.jpg",
+        "http://localhost:19000/knowledge-files/upload-images/hak180使用说明书/24a80e4f0025cd2f1b913285a20cb770f769e3418cb9388049d53dd18f24e38c.jpg"]
+
     print("---node_answer_output 节点处理结束---")
     # 关键点：return 必须保留 session_id！
     return {
         "session_id": session_id,  # 必须带回去
         "answer": "你的回答内容",
-        "is_stream": state.get("is_stream")
+        "is_stream": state.get("is_stream"),
+        'image_urls': image_urls
     }

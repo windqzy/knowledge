@@ -1,4 +1,6 @@
 import sys
+import time
+from time import sleep
 
 from app.shared.runtime.logger import node_log
 from app.rag.query.rrf_service import fuse_by_rrf
@@ -12,5 +14,6 @@ def node_rrf(state):
     """
     add_running_task(state["session_id"], sys._getframe().f_code.co_name, state.get("is_stream"))
     state = fuse_by_rrf(state)
+    time.sleep(3)
     add_done_task(state['session_id'], sys._getframe().f_code.co_name, state.get("is_stream"))
     return state

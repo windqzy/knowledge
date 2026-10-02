@@ -10,12 +10,12 @@ from app.api.schemas.query_shema import QueryRequestSchema, SyncQueryResponseSch
 from app.process.query.agent.main_graph import query_graph_app
 from app.process.query.agent.state import QueryGraphState, create_query_default_state
 from app.shared.runtime.logger import logger, PROJECT_ROOT
-from app.shared.utils.sse_utils import sse_generator, get_sse_queue, create_sse_queue
+from app.shared.utils.sse_utils import sse_generator, get_sse_queue, create_sse_queue, push_to_session, SSEEvent
 from datetime import datetime
 from fastapi.requests import Request
 
 from app.shared.utils.task_utils import get_done_task_list, update_task_status, TASK_STATUS_PROCESSING, \
-    TASK_STATUS_COMPLETED, TASK_STATUS_FAILED
+    TASK_STATUS_COMPLETED, TASK_STATUS_FAILED, clear_task
 
 app = FastAPI()
 
@@ -62,13 +62,38 @@ def invoke_query_graph(original_query: str, session_id: str, is_stream: bool) ->
         logger.info(f"开始测试查询图流程：传入参数为：\n{json.dumps(state, indent=4, ensure_ascii=False)}")
         # 2.调用图对象
         result = query_graph_app.invoke(state)
-        logger.info(f"测试结束查询图流程：查询结果为：\n{json.dumps(result, indent=4, ensure_ascii=False)}")
         update_task_status(session_id, TASK_STATUS_COMPLETED, is_stream)
+
+        # 流式 + 正常结束
+        if is_stream:
+            push_to_session(
+                session_id,
+                SSEEvent.FINAL,
+                {
+                    "answer": result.get("answer"),
+                    "status": "completed",
+                    "image_urls": result.get("image_urls", [])
+                }
+            )
+
+        logger.info(f"测试结束查询图流程,查询结果为:\n {json.dumps(result, indent=4, ensure_ascii=False)}")
         return result
     except Exception as e:
-        logger.exception(f'查询图执行出现错误！{e}')
-        update_task_status(session_id, TASK_STATUS_FAILED, is_stream)
+        logger.exception(f"查询图执行出现错误!{e}")
+        update_task_status(
+            session_id,
+            TASK_STATUS_FAILED,
+            is_stream
+        )
 
+        if is_stream:
+            push_to_session(
+                session_id,
+                SSEEvent.ERROR,
+                {
+                    "error": f"查询:{original_query}流程报错！错误信息:{str(e)}"
+                }
+            )
 
 # 接口4:查询问题接口
 @app.post('/query')
@@ -79,6 +104,7 @@ async def query_question(task: BackgroundTasks, param: QueryRequestSchema):
     is_stream = param.is_stream
     # 2.判断是否是流式
     if is_stream:
+        clear_task(session_id)
         # 3.流式的异步执行
         if get_sse_queue(session_id) is None:
             create_sse_queue(session_id)
@@ -104,11 +130,66 @@ async def query_question(task: BackgroundTasks, param: QueryRequestSchema):
 if __name__ == '__main__':
     uvicorn.run(app, host='127.0.0.1', port=8001)
 
-
 """
 health()              → def ✅
 return_html()         → def ✅
 stream()              → async def ✅【需要改】
 invoke_query_graph()  → def ✅
 query_question()      → async def ✅【你已经改了】
+"""
+"""
+                 invoke_query_graph
+                        ↓
+                 status=processing
+                        ↓
+                   创建 state
+                        ↓
+                  LangGraph.invoke
+                        ↓
+              ┌─────────┴─────────┐
+              ↓                   ↓
+            成功                  失败
+              ↓                   ↓
+      status=completed       status=failed
+              ↓                   ↓
+       is_stream=True?          ERROR
+          /       \
+        是         否
+        ↓           ↓
+     FINAL        return
+        ↓
+    SSE Queue
+        ↓
+      前端
+      
+      
+"""
+
+"""
+invoke_query_graph()
+        ↓
+① 状态改成 processing
+        ↓
+② 创建 QueryGraphState
+        ↓
+③ query_graph_app.invoke(state)
+   执行整个查询图
+        ↓
+④ 状态改成 completed
+        ↓
+⑤ 如果是流式
+   → 把 FINAL 塞进 SSE Queue
+        ↓
+⑥ return result
+
+is_stream = True
+→ 需要 SSE 推送
+→ progress / final / error → Queue → 前端
+
+is_stream = False
+→ 不需要 SSE
+→ 等 LangGraph 全部完成
+→ 直接 return result
+
+final/error 触发  es.close();
 """

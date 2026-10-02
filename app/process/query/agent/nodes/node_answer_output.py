@@ -1,4 +1,5 @@
 import sys
+import time
 
 from app.shared.runtime.logger import node_log
 from app.rag.query.answer_service import generate_answer
@@ -11,5 +12,6 @@ def node_answer_output(state):
     """
     add_running_task(state["session_id"], sys._getframe().f_code.co_name, state["is_stream"])
     state = generate_answer(state)
+    time.sleep(3)
     add_done_task(state['session_id'], sys._getframe().f_code.co_name, state["is_stream"])
     return state

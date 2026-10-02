@@ -1,4 +1,5 @@
 import sys
+import time
 
 from app.shared.runtime.logger import node_log
 from app.rag.query.rerank_service import rerank_documents
@@ -11,5 +12,6 @@ def node_rerank(state):
     """
     add_running_task(state["session_id"], sys._getframe().f_code.co_name, state.get("is_stream"))
     state = rerank_documents(state)
+    time.sleep(3)
     add_done_task(state['session_id'], sys._getframe().f_code.co_name, state.get("is_stream"))
     return state
