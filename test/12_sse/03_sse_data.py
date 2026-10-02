@@ -105,4 +105,19 @@ asyncio.Queue
           │
           ↓
      前端 SSE
+
+long_task
+= 生产者
+
+asyncio.Queue
+= 传送带
+
+event_generator
+= 消费者
+
+yield
+= 吐出一条数据
+
+StreamingResponse
+= 把吐出来的数据通过 HTTP 发给前端
 """

@@ -30,7 +30,8 @@ def generate_answer(state: QueryGraphState) -> QueryGraphState:
             push_to_session(session_id, SSEEvent.DELTA, {"delta": ch})
             time.sleep(0.03)
 
-        image_urls = ["https://example.com/demo-1.png", "https://example.com/demo-2.png"]
+        image_urls = ["http://localhost:19000/knowledge-files/upload-images/hak180使用说明书/05974e15ae8e04f06c8665edafb8075e1bb9a231ffa37af8f3b19802f807cd87.jpg",
+                      "http://localhost:19000/knowledge-files/upload-images/hak180使用说明书/24a80e4f0025cd2f1b913285a20cb770f769e3418cb9388049d53dd18f24e38c.jpg"]
         push_to_session(
             session_id,
             SSEEvent.FINAL,
