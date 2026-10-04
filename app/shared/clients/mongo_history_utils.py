@@ -236,3 +236,30 @@ if __name__ == "__main__":
     # 遍历打印每条记录的详细内容
     for m in messages:
         print(f" {m}  ")
+
+"""
+             MongoDB聊天历史工具
+
+                 HistoryMongoTool
+                       ↓
+             连接数据库 + 获取集合
+                       ↓
+                  chat_message
+                       ↓
+             建 session_id + ts 索引
+
+
+上层调用：
+
+clear_history()
+→ 删除一个 session 全部历史
+
+save_chat_message()
+→ 保存 user / assistant 消息
+
+update_message_item_names()
+→ 批量补充主体 item_name
+
+get_recent_messages()
+→ 查某 session 最近 N 条消息
+"""

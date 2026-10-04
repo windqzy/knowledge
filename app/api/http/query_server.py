@@ -6,9 +6,11 @@ import uvicorn
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.responses import FileResponse, StreamingResponse
 
-from app.api.schemas.query_shema import QueryRequestSchema, SyncQueryResponseSchema, AsyncQueryResponseSchema
+from app.api.schemas.query_shema import QueryRequestSchema, SyncQueryResponseSchema, AsyncQueryResponseSchema, \
+    ClearHistoryResponseSchema, SearchHistoryItemResponseSchema, SearchHistoryResultResponseSchema
 from app.process.query.agent.main_graph import query_graph_app
 from app.process.query.agent.state import QueryGraphState, create_query_default_state
+from app.shared.clients import clear_history, get_recent_messages
 from app.shared.runtime.logger import logger, PROJECT_ROOT
 from app.shared.utils.sse_utils import sse_generator, get_sse_queue, create_sse_queue, push_to_session, SSEEvent
 from datetime import datetime
@@ -95,6 +97,7 @@ def invoke_query_graph(original_query: str, session_id: str, is_stream: bool) ->
                 }
             )
 
+
 # 接口4:查询问题接口
 @app.post('/query')
 async def query_question(task: BackgroundTasks, param: QueryRequestSchema):
@@ -125,6 +128,39 @@ async def query_question(task: BackgroundTasks, param: QueryRequestSchema):
             done_list=done_list,
             image_urls=result.get('image_urls')
         )
+
+
+# 接口5:清空聊天记录
+@app.delete('/history/{session_id}')
+def clear_history_api(session_id: str):
+    deleted_count = clear_history(session_id)
+    logger.info(f'清空:{session_id}对应聊天记录，清空：{deleted_count}条')
+    return ClearHistoryResponseSchema(
+        message=f'清空:{session_id}对应聊天记录，清空：{deleted_count}条',
+        deleted_count=deleted_count,
+    )
+
+
+# 接口6:查询聊天记录
+@app.get('/history/{session_id}')
+def search_history_api(session_id: str, limit: int=10):
+    history: list[dict] = get_recent_messages(session_id, limit)
+    logger.info(f'查询:{session_id}对应聊天记录为：{history}')
+    return SearchHistoryResultResponseSchema(
+        session_id=session_id,
+        items=[
+            SearchHistoryItemResponseSchema(
+                id=str(item.get('_id')),
+                session_id=item.get('session_id'),
+                role=item.get('role'),
+                text=item.get('text'),
+                rewritten_query=item.get('rewritten_query'),
+                item_names=item.get('item_names'),
+                image_urls=item.get('image_urls'),
+                ts=item.get('ts')
+            ) for item in history
+        ]
+    )
 
 
 if __name__ == '__main__':
