@@ -25,14 +25,21 @@ class LLMProvider:
             model: str | None = None,
             json_mode: bool = False
     ) -> ChatOpenAI:
-        # 不传模型时，默认使用本地模型
         model_name = model or "qwen3:8b"
 
+        model_kwargs = {}
+
+        if json_mode:
+            model_kwargs["response_format"] = {
+                "type": "json_object"
+            }
+
         return ChatOpenAI(
-            model='qwen3:8b',
+            model=model_name,
             base_url="http://localhost:11434/v1",
-            api_key="ollama",  # Ollama其实不验证，随便填
+            api_key="ollama",
             temperature=0.1,
+            model_kwargs=model_kwargs,
         )
 
     # def vision_model(self,model_name:str ) -> ChatOpenAI:
@@ -51,8 +58,8 @@ class LLMProvider:
             temperature=0.1,
         )
 
-    #3.嵌入式模型生成向量的函数
-    def generate_embeddings(self,texts:list[str]) -> dict[str, list]:
+    # 3.嵌入式模型生成向量的函数
+    def generate_embeddings(self, texts: list[str]) -> dict[str, list]:
         return generate_embeddings(texts)
 
 

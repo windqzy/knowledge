@@ -40,3 +40,63 @@ if __name__ == '__main__':
     )
     print("✅ 渲染后的最终提示词：")
     print(final_prompt)
+
+
+"""
+调用：
+
+load_prompt(
+    name="image_summary",
+    root_folder="hl3070使用说明书",
+    image_content=("图片上文", "图片下文")
+)
+
+               ↓
+
+① 根据 name 找提示词文件
+
+app/resources/prompts/
+image_summary.prompt
+
+               ↓
+
+② 检查文件存在不存在
+
+prompt_path.exists()
+
+               ↓
+
+③ 读取提示词全文
+
+raw_prompt =
+prompt_path.read_text()
+
+               ↓
+
+④ 有没有传 kwargs？
+
+        ┌──────┴──────┐
+        ↓             ↓
+       有             没有
+        ↓             ↓
+raw_prompt.format()   原样返回
+        ↓
+替换占位符
+        ↓
+{root_folder}
+→ hl3070使用说明书
+
+{image_content[0]}
+→ 图片上文
+
+{image_content[1]}
+→ 图片下文
+
+{{ }}
+→ { }
+
+        ↓
+最终 Prompt
+        ↓
+交给 LLM
+"""
