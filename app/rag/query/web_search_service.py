@@ -50,9 +50,7 @@ async def web_search_bailian_mcp(rewritten_query: str):
         return result
 
 
-step_log("search_by_web")
-
-
+@step_log("search_by_web")
 def search_by_web(state: QueryGraphState) -> QueryGraphState:
     # 1.获取并校验参数
     rewritten_query: str = get_data_and_validate(state)

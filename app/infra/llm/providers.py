@@ -2,6 +2,7 @@ from langchain_openai import ChatOpenAI
 
 from app.infra.config.providers import infra_config
 from app.shared.model import generate_embeddings, get_bge_m3_ef, get_llm_client, get_reranker_model
+from app.shared.model.reranker_utils import get_reranker_model
 
 
 class LLMProvider:
@@ -61,6 +62,21 @@ class LLMProvider:
     # 3.嵌入式模型生成向量的函数
     def generate_embeddings(self, texts: list[str]) -> dict[str, list]:
         return generate_embeddings(texts)
+
+    # 4.reranker模型 打分/算token数量
+    def compute_scores(self, question_answer_pair: list[tuple[str,str]]) -> list[float]:
+        reranker_model = get_reranker_model()
+        score_list: list[float] = reranker_model.compute_score(question_answer_pair, normalize=True)
+        return score_list
+
+    # 5.reranker模型 算token数量
+    def compute_token_number(self, data: str) -> int:
+        reranker_model = get_reranker_model()
+        tokenizer = reranker_model.tokenizer
+        # 编码为id 不要考虑特殊字符
+        token_id_list = tokenizer.encode(data, add_special_tokens=False)
+        token_number: int = len(token_id_list)
+        return token_number
 
 
 # 创建全局唯一的 LLM 提供器实例，全项目通用，避免重复创建
