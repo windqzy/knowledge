@@ -1,3 +1,4 @@
+import json
 import sys
 import time
 
@@ -15,6 +16,15 @@ def node_web_search_mcp(state):
     time.sleep(3)
     add_done_task(state["session_id"], sys._getframe().f_code.co_name, state["is_stream"])
     return {
-        'web_search_docs':[]
+        'web_search_docs':state["web_search_docs"]
     }
     #并发的地方不能有相同的key，有就报错
+
+if __name__ == "__main__":
+    test_state = {
+        "session_id": "xxxx",
+        "is_stream": False,
+        "rewritten_query": "HAK 180 在出厂默认状态下，若想在纸张上只把烫金膜转印到顶部 50 mm–170 mm 的局部区域，应在操作面板上如何设置",
+    }
+    result_state = node_web_search_mcp(test_state)
+    print(result_state)

@@ -20,5 +20,5 @@ class McpConfig:
 
 mcp_config = McpConfig(
     mcp_base_url=env_str("MCP_DASHSCOPE_BASE_URL"),
-    api_key=env_str("OPENAI_API_KEY"),
+    api_key=env_str("MCP_API_KEY"),
 )
