@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ClaudeCodeTabState">
+    <option name="tabSessions">
+      <map>
+        <entry key="0">
+          <value>
+            <TabSessionState>
+              <option name="projectPath" value="$PROJECT_DIR$" />
+              <option name="provider" value="codex" />
+              <option name="sessionId" value="01a1c9c0-f8ee-72a1-9f41-6d55fa12f18b" />
+              <option name="cwd" value="$PROJECT_DIR$" />
+              <option name="model" value="gpt-6-astra" />
+              <option name="permissionMode" value="default" />
+            </TabSessionState>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

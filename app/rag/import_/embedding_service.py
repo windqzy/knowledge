@@ -26,7 +26,7 @@ def batch_create_chunks_vector(chunks: list[dict[str, Any]]):
     # 批量循环
     for index in range(0, chunk_size, 5):
         current_chunks = chunks[index:index + CHUNS_SPLIT_BATCH_SISE]
-        current_content_list: list[str] = [f'{chunk.get('item_name')}:{chunk.get('content')}' for chunk in chunks]
+        current_content_list: list[str] = [f'{chunk.get('item_name')}:{chunk.get('content')}' for chunk in current_chunks]
         result = generate_embeddings(current_content_list)
 
         for index, chunk in enumerate(current_chunks):

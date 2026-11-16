@@ -3,6 +3,7 @@
 """
 from langchain_core.exceptions import LangChainException
 from langchain_openai import ChatOpenAI
+from urllib.parse import urlsplit
 
 from app.shared.config.lm_config import lm_config
 from app.shared.runtime.logger import logger
@@ -43,7 +44,14 @@ def get_llm_client(model: str | None = None, json_mode: bool = False) -> ChatOpe
 
     # 4. 配置参数组装：区分「国产模型私有参数」和「OpenAI通用参数」
     # extra_body：千问/即梦等国产模型专属私有参数（LangChain透传至API）
-    extra_body = {"enable_thinking": False}  # 千问专属：关闭思考链输出，减少冗余内容
+    # 根据服务商选择关闭思考的参数，避免把千问私有参数发送给 DeepSeek。
+    host = urlsplit(lm_config.base_url).hostname or ""
+    if host == "api.deepseek.com":
+        extra_body = {"thinking": {"type": "disabled"}}
+    elif "dashscope" in host or "maas.aliyuncs.com" in host:
+        extra_body = {"enable_thinking": False}
+    else:
+        extra_body = {}
     # model_kwargs：OpenAI通用参数，所有兼容API均支持
     model_kwargs = {}
     if json_mode:
@@ -55,7 +63,7 @@ def get_llm_client(model: str | None = None, json_mode: bool = False) -> ChatOpe
     try:
         llm_client = ChatOpenAI(
             model=target_model,  # 目标模型名
-            temperature=lm_config.llm_temperature or _DEFAULT_TEMPERATURE,  # 低温度保证输出确定性（0~1）
+            temperature=lm_config.llm_temperature,  # 保留用户显式配置的 0 温度。
             api_key=lm_config.api_key,  # API密钥
             base_url=lm_config.base_url,  # API基础地址（适配国产模型代理地址）
             extra_body=extra_body,  # 国产模型私有参数透传

@@ -26,22 +26,8 @@ class LLMProvider:
             model: str | None = None,
             json_mode: bool = False
     ) -> ChatOpenAI:
-        model_name = model or "qwen3:8b"
-
-        model_kwargs = {}
-
-        if json_mode:
-            model_kwargs["response_format"] = {
-                "type": "json_object"
-            }
-
-        return ChatOpenAI(
-            model=model_name,
-            base_url="http://localhost:11434/v1",
-            api_key="ollama",
-            temperature=0.1,
-            model_kwargs=model_kwargs,
-        )
+        """复用环境配置中的 API 地址、密钥、默认模型及温度，保留显式模型覆盖。"""
+        return get_llm_client(model=model, json_mode=json_mode)
 
     # def vision_model(self,model_name:str ) -> ChatOpenAI:
     #     """

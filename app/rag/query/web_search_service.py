@@ -33,6 +33,8 @@ async def web_search_bailian_mcp(rewritten_query: str):
                 "timeout": 30,
             },
             cache_tools_list=True,
+            # HTTP 超时不覆盖 MCP 会话默认的 5 秒超时，两者需要分别设置。
+            client_session_timeout_seconds=30,
             max_retry_attempts=3,
     ) as server:
         # 2. 获取工具列表
